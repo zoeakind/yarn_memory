@@ -5,17 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Yarn Vault: Live Stash</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
-        h1 { text-align: center; color: #4a3488; }
-        .controls { max-width: 800px; margin: 0 auto 30px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; justify-content: center; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
-        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-bottom: 4px solid #6b4fbb; }
-        .card img { width: 100%; height: 180px; object-fit: cover; background-color: #eee; }
-        .card-content { padding: 15px; }
-        .weight-tag { display: inline-block; background: #6b4fbb; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; margin-bottom: 10px; }
-        .stats { font-size: 0.9rem; color: #666; margin: 5px 0; }
-        .loading { text-align: center; font-style: italic; color: #888; }
-    </style>
+    :root {
+        --bg-color: #ffffff;
+        --text-primary: #000000;
+        --text-secondary: #707070;
+        --border-color: #e0e0e0;
+    }
+
+    body { 
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+        background: var(--bg-color); 
+        padding: 60px 40px; 
+        color: var(--text-primary); 
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header matching your site's clean aesthetic */
+    h1 { 
+        text-align: left; 
+        font-weight: 400; 
+        font-size: 2rem; 
+        letter-spacing: -0.02em; 
+        margin-bottom: 80px; 
+        text-transform: uppercase;
+    }
+
+    /* Minimalist Filter Bar */
+    .controls { 
+        max-width: 100%; 
+        margin-bottom: 40px; 
+        padding: 20px 0; 
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        display: flex; 
+        justify-content: flex-start;
+        gap: 20px;
+    }
+
+    .controls label { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--text-secondary); }
+
+    select {
+        border: none;
+        background: transparent;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        outline: none;
+        font-weight: 500;
+    }
+
+    /* Editorial Gallery Grid */
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+        gap: 60px 40px; 
+        max-width: 100%; 
+    }
+
+    /* Minimalist Cards */
+    .card { 
+        background: transparent; 
+        transition: opacity 0.3s ease;
+    }
+    
+    .card:hover { opacity: 0.8; }
+
+    .card img { 
+        width: 100%; 
+        aspect-ratio: 3 / 4; /* Editorial portrait feel */
+        object-fit: cover; 
+        filter: grayscale(100%); /* Optional: matches a B&W site until hover */
+        transition: filter 0.5s ease;
+        margin-bottom: 20px;
+    }
+
+    .card:hover img { filter: grayscale(0%); }
+
+    .card-content { padding: 0; }
+
+    .brand-name { 
+        font-size: 0.7rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.15em; 
+        color: var(--text-secondary); 
+        margin-bottom: 8px; 
+    }
+    
+    .yarn-title { 
+        font-size: 1.1rem; 
+        font-weight: 400; 
+        margin: 0 0 10px 0; 
+        color: var(--text-primary); 
+    }
+
+    .weight-badge { 
+        font-size: 0.65rem; 
+        text-transform: uppercase;
+        border: 1px solid var(--border-color);
+        padding: 2px 8px;
+        color: var(--text-secondary);
+    }
+
+    .stash-info { 
+        margin-top: 15px; 
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+    }
+
+    .yardage-total { color: var(--text-primary); }
+</style>
 </head>
 <body>
 
@@ -79,14 +183,17 @@
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
-                        <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
-                        <div class="card-content">
-                            <span class="weight-tag">${yarn.weight}</span>
-                            <h3>${yarn.brand} ${yarn.name || ''}</h3>
-                            <p class="stats"><strong>Color:</strong> ${yarn.color}</p>
-                            <p class="stats"><strong>Total:</strong> ${totalYards} yards (${yarn.quantity} skeins)</p>
-                        </div>
-                    `;
+    <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
+    <div class="card-content">
+        <div class="brand-name">${yarn.brand}</div>
+        <h3 class="yarn-title">${yarn.name || 'Fiber'}</h3>
+        <span class="weight-badge">${yarn.weight}</span>
+        <div class="stash-info">
+            <span>${yarn.quantity} SKEINS</span>
+            <span class="yardage-total">${totalYards} YDS</span>
+        </div>
+    </div>
+`;
                     grid.appendChild(card);
                 }
             });
