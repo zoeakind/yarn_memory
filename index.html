@@ -10,6 +10,13 @@
         .card { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid #6b4fbb; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .weight-tag { font-size: 0.8em; color: white; background: #6b4fbb; padding: 2px 8px; border-radius: 10px; }
         .match-ready { border-left-color: #2ecc71; }
+        .card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover; /* This crops the image to fit perfectly without stretching */
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
     </style>
 </head>
 <body>
@@ -31,9 +38,9 @@
     <script>
         // This is your "Database" (Mock Data)
         const myYarn = [
-            { id: 1, brand: "Malabrigo", color: "Azul Profundo", weight: "Worsted", yardage: 210, quantity: 4 },
-            { id: 2, brand: "Hedgehog Fibres", color: "Potluck", weight: "Fingering", yardage: 400, quantity: 1 },
-            { id: 3, brand: "Cascade 220", color: "Charcoal", weight: "Worsted", yardage: 220, quantity: 6 }
+            { id: 1, brand: "Malabrigo", color: "Azul Profundo", weight: "Worsted", yardage: 210, quantity: 4, image: "https://example.com/azul-profundo.jpg"   },
+            { id: 2, brand: "Hedgehog Fibres", color: "Potluck", weight: "Fingering", yardage: 400, quantity: 1, image: "https://example.com/azul-profundo.jpg" },
+            { id: 3, brand: "Cascade 220", color: "Charcoal", weight: "Worsted", yardage: 220, quantity: 6, image: "https://example.com/azul-profundo.jpg"  }
         ];
 
         function renderYarn() {
@@ -48,11 +55,12 @@
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
-                        <h3>${yarn.brand}</h3>
-                        <p><strong>Color:</strong> ${yarn.color}</p>
-                        <span class="weight-tag">${yarn.weight}</span>
-                        <p><strong>Total Stash:</strong> ${totalYardage} yds</p>
-                    `;
+    <img src="${yarn.image}" alt="${yarn.brand} ${yarn.color}">
+    <h3>${yarn.brand}</h3>
+    <p><strong>Color:</strong> ${yarn.color}</p>
+    <span class="weight-tag">${yarn.weight}</span>
+    <p><strong>Total Stash:</strong> ${yarn.yardage * yarn.quantity} yds</p>
+`;
                     grid.appendChild(card);
                 }
             });
