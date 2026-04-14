@@ -74,7 +74,7 @@
             yarnDatabase.forEach(yarn => {
                 if (yarn.brand && (filter === "All" || yarn.weight.trim() === filter)) {
                     const totalYards = Math.round(yarn.yardage * yarn.quantity);
-                    const defaultImg = 'https://via.placeholder.com/250x180?text=No+Photo';
+                    const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
                     
                     const card = document.createElement('div');
                     card.className = 'card';
