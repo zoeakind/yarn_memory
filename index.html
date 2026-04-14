@@ -10,12 +10,17 @@
         .card { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid #6b4fbb; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .weight-tag { font-size: 0.8em; color: white; background: #6b4fbb; padding: 2px 8px; border-radius: 10px; }
         .match-ready { border-left-color: #2ecc71; }
-        .card img {
+       .card img {
     width: 100%;
-    height: 250px;
-    object-fit: cover; /* This crops the image to fit perfectly without stretching */
+    height: 150px;
+    object-fit: cover;
     border-radius: 4px;
-    margin-bottom: 10px;
+    /* This adds your SVG as a backup background */
+    background-image: url('ball-of-wool-fashion-svgrepo-com.svg');
+    background-size: center;
+    background-repeat: no-repeat;
+    background-color: #e0e0e0; /* a nice neutral grey while loading */
+}
 }
     </style>
 </head>
@@ -38,8 +43,8 @@
     <script>
         // This is your "Database" (Mock Data)
         const myYarn = [
-            { id: 1, brand: "Malabrigo", color: "Azul Profundo", weight: "Worsted", yardage: 210, quantity: 4, image: " ball-of-wool-fashion-svgrepo-com.svg"   },
-            { id: 2, brand: "Hedgehog Fibres", color: "Potluck", weight: "Fingering", yardage: 400, quantity: 1, image: "ball-of-wool-fashion-svgrepo-com.svg" },
+            { id: 1, brand: "Malabrigo", color: "Azul Profundo", weight: "Worsted", yardage: 210, quantity: 4,   },
+            { id: 2, brand: "Hedgehog Fibres", color: "Potluck", weight: "Fingering", yardage: 400, quantity: 1, image: },
             { id: 3, brand: "Cascade 220", color: "Charcoal", weight: "Worsted", yardage: 220, quantity: 6, image: "ball-of-wool-fashion-svgrepo-com.svg"  }
         ];
 
