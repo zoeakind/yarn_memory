@@ -46,16 +46,16 @@
 alert("Loaded " + yarnDatabase.length + " items from Sheets");
                 
                 return {
-                    brand: cols[2] ? cols[2].trim() : "",
-                    name: cols[3] ? cols[3].trim() : "",
-                    colorFamily: cols[4] ? cols[4].trim() : "",
-                    colorName: cols[5] ? cols[5].trim() : "",
-                    weight: cols[6] ? cols[6].trim() : "",
-                    // We point to the new column positions (6 and 7)
-                    yardage: parseFloat(cols[7]) || 0,
-                    quantity: parseFloat(cols[8]) || 0,
-                    image: cols[9] ? cols[9].trim() : ""
-                };
+    // ID is Column A
+    brand: cols[1] ? cols[1].trim() : "",        // Column B
+    name: cols[2] ? cols[2].trim() : "",         // Column C
+    colorFamily: cols[3] ? cols[3].trim() : "",  // Column D
+    colorName: cols[4] ? cols[4].trim() : "",    // Column E
+    weight: cols[5] ? cols[5].trim() : "",       // Column F
+    yardage: parseFloat(cols[6]) || 0,           // Column G
+    quantity: parseFloat(cols[7]) || 0,          // Column H
+    image: cols[8] ? cols[8].trim() : ""         // Column I
+};
             });
             displayYarn();
         } catch (error) {
