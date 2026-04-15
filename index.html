@@ -217,16 +217,15 @@
         const yardageNeeded = parseFloat(document.getElementById('yardageFilter').value) || 0;
         
         const grid = document.getElementById('yarnGrid');
+        if (!grid) return; // Safety check
         grid.innerHTML = '';
 
         // 1. Filter the database
         let displayList = yarnDatabase.filter(function(yarn) {
             const totalStashYards = yarn.yardage * yarn.quantity;
-            
             const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
             const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
             const hasEnoughYardage = (totalStashYards >= yardageNeeded);
-
             return yarn.brand && matchWeight && matchColor && hasEnoughYardage;
         });
 
@@ -245,14 +244,13 @@
             const totalYds = Math.round(yarn.yardage * yarn.quantity);
             const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
             
-            // NEW: Pluralization Logic
-            // If quantity is 1, use "SKEIN", otherwise use "SKEINS"
-            const skeinLabel = (yarn.quantity <= 1) ? "SKEIN" : "SKEINS";
+            // Pluralization check
+            var skeinLabel = (yarn.quantity === 1) ? "SKEIN" : "SKEINS";
 
             const card = document.createElement('div');
             card.className = 'card';
             
-            let colorString = yarn.colorFamily;
+            var colorString = yarn.colorFamily;
             if (yarn.yarnName) colorString += " / " + yarn.yarnName;
 
             card.innerHTML = 
@@ -263,7 +261,6 @@
                     '<span class="tag">' + yarn.weight + ' weight</span>' +
                     '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
                     '<div class="details-row">' +
-                        // Use our new skeinLabel variable here
                         '<span class="quantity">' + yarn.quantity + ' ' + skeinLabel + '</span>' +
                         '<span class="tag">' + totalYds + ' YDS TOTAL</span>' +
                     '</div>' +
@@ -275,6 +272,7 @@
             
             grid.appendChild(card);
         });
+    }
     fetchStash();
 </script>
 </body>
