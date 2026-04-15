@@ -1,207 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Yarn Vault: Live Stash</title>
-    <style>
-    :root {
-        --bg-color: #ffffff;
-        --text-primary: #000000;
-        --text-secondary: #707070;
-        --border-color: #e0e0e0;
-    }
-
-    body { 
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-        background: var(--bg-color); 
-        padding: 60px 40px; 
-        color: var(--text-primary); 
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-    }
-
-    /* Header matching your site's clean aesthetic */
-    h1 { 
-        text-align: left; 
-        font-weight: 400; 
-        font-size: 2rem; 
-        letter-spacing: -0.02em; 
-        margin-bottom: 80px; 
-        text-transform: uppercase;
-    }
-
-    /* Minimalist Filter Bar */
-    .controls { 
-        max-width: 100%; 
-        margin-bottom: 40px; 
-        padding: 20px 0; 
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
-        display: flex; 
-        justify-content: flex-start;
-        gap: 20px;
-    }
-
-    .controls label { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--text-secondary); }
-
-    select {
-        border: none;
-        background: transparent;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        cursor: pointer;
-        outline: none;
-        font-weight: 500;
-    }
-
-    /* Editorial Gallery Grid */
-    .grid { 
-        display: grid; 
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-        gap: 60px 40px; 
-        max-width: 100%; 
-    }
-
-    /* Minimalist Cards */
-    .card { 
-        background: transparent; 
-        transition: opacity 0.3s ease;
-    }
-    
-    .card:hover { opacity: 0.8; }
-
-    .card img { 
-        width: 100%; 
-        height: 150px;
-        aspect-ratio: 3 / 4; /* Editorial portrait feel */
-        object-fit: cover; 
-        filter: grayscale(100%); /* Optional: matches a B&W site until hover */
-        transition: filter 0.5s ease;
-        margin-bottom: 20px;
-    }
-
-    .card:hover img { filter: grayscale(0%); }
-
-    .card-content { padding: 0; }
-
-    .brand-name { 
-        font-size: 0.7rem; 
-        text-transform: uppercase; 
-        letter-spacing: 0.15em; 
-        color: var(--text-secondary); 
-        margin-bottom: 8px; 
-    }
-    
-    .yarn-title { 
-        font-size: 1.1rem; 
-        font-weight: 400; 
-        margin: 0 0 10px 0; 
-        color: var(--text-primary); 
-    }
-
-    .weight-badge { 
-        font-size: 0.65rem; 
-        text-transform: uppercase;
-        border: 1px solid var(--border-color);
-        padding: 2px 8px;
-        color: var(--text-secondary);
-    }
-
-    .stash-info { 
-        margin-top: 15px; 
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-secondary);
-    }
-
-    .yardage-total { color: var(--text-primary); }
-</style>
-</head>
-<body>
-
-    <h1>🧶 Yarn Memory</h1>
-
-    <div class="controls">
-        <label for="weightFilter">Filter Weight:</label>
+<div class="controls">
+    <div>
+        <label>Weight</label>
         <select id="weightFilter" onchange="displayYarn()">
-            <option value="All">All Weights</option>
+            <option value="All">All</option>
             <option value="Fingering">Fingering</option>
             <option value="Sport">Sport</option>
             <option value="Worsted">Worsted</option>
             <option value="Bulky">Bulky</option>
         </select>
     </div>
-
-    <div id="yarnGrid" class="grid"><p class="loading">Loading your stash from Google Sheets...</p></div>
-
-    <script>
-        // PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK BETWEEN THE QUOTES BELOW
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv";
-
-        let yarnDatabase = [];
-
-        async function fetchStash() {
-            try {
-                const response = await fetch(sheetUrl);
-                const data = await response.text();
-                
-                // This logic splits the CSV text into rows and columns
-                const rows = data.split('\n').slice(1); // skip header row
-                yarnDatabase = rows.map(row => {
-                    const cols = row.split(',');
-                    return {
-                        brand: cols[1],
-                        name: cols[2],
-                        color: cols[3],
-                        weight: cols[4],
-                        yardage: parseFloat(cols[5]) || 0,
-                        quantity: parseFloat(cols[6]) || 0,
-                        image: cols[7] ? cols[7].trim() : ""
-                    };
-                });
-                displayYarn();
-            } catch (error) {
-                document.getElementById('yarnGrid').innerHTML = "Error loading data. Check your Sheet link!";
-                console.error(error);
-            }
-        }
-
-        function displayYarn() {
-            const filter = document.getElementById('weightFilter').value;
-            const grid = document.getElementById('yarnGrid');
-            grid.innerHTML = '';
-
-            yarnDatabase.forEach(yarn => {
-                if (yarn.brand && (filter === "All" || yarn.weight.trim() === filter)) {
-                    const totalYards = Math.round(yarn.yardage * yarn.quantity);
-                    const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
-                    
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-    <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
-    <div class="card-content">
-        <div class="brand-name">${yarn.brand}</div>
-        <h3 class="yarn-title">${yarn.name || 'Fiber'}</h3>
-        <span class="weight-badge">${yarn.weight}</span>
-        <div class="stash-info">
-            <span>${yarn.quantity} SKEINS</span>
-            <span class="yardage-total">${totalYards} YDS</span>
-        </div>
+    <div>
+        <label>Color</label>
+        <select id="colorFilter" onchange="displayYarn()">
+            <option value="All">All</option>
+            <option value="Blue">Blue</option>
+            <option value="Green">Green</option>
+            <option value="Red">Red</option>
+            <option value="Cream">Cream</option>
+            <option value="Pink">Pink</option>
+            <option value="Purple">Purple</option>
+            <option value="Varigated">Varigated</option>
+        </select>
     </div>
-`;
-                    grid.appendChild(card);
-                }
-            });
-        }
+</div>
 
-        // Run the fetcher when the page opens
-        fetchStash();
-    </script>
-</body>
-</html>
+<script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv";
+    let yarnDatabase = [];
+
+    async function fetchStash() {
+        try {
+            const response = await fetch(sheetUrl);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1); 
+
+            yarnDatabase = rows.map(row => {
+                const cols = row.split(',');
+                return {
+                    brand: cols[1],
+                    name: cols[2],
+                    colorFamily: cols[3] ? cols[3].trim() : "",
+                    colorName: cols[4] ? cols[4].trim() : "",
+                    weight: cols[5] ? cols[5].trim() : "",
+                    yardage: parseFloat(cols[6]) || 0,
+                    quantity: parseFloat(cols[7]) || 0,
+                    image: cols[8] ? cols[8].trim() : ""
+                };
+            });
+            displayYarn();
+        } catch (error) {
+            console.error("Error loading sheet:", error);
+        }
+    }
+
+    function displayYarn() {
+        const weightChoice = document.getElementById('weightFilter').value;
+        const colorChoice = document.getElementById('colorFilter').value;
+        const grid = document.getElementById('yarnGrid');
+        grid.innerHTML = '';
+
+        yarnDatabase.forEach(yarn => {
+            // Dual Filter Logic: Check both weight AND color
+            const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
+            const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
+
+            if (yarn.brand && matchWeight && matchColor) {
+                const totalYards = Math.round(yarn.yardage * yarn.quantity);
+                const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
+                    <div class="card-content">
+                        <div class="brand-name">${yarn.brand}</div>
+                        <h3 class="yarn-title">${yarn.name || 'Fiber'}</h3>
+                        <div style="margin-bottom: 10px;">
+                            <span class="weight-badge">${yarn.weight}</span>
+                        </div>
+                        <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase;">
+                            ${yarn.colorFamily} / ${yarn.colorName}
+                        </p>
+                        <div class="stash-info">
+                            <span>${yarn.quantity} SKEINS</span>
+                            <span class="yardage-total">${totalYards} YDS</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        });
+    }
+
+    fetchStash();
+</script>
