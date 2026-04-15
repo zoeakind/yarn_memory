@@ -25,23 +25,29 @@
 </div>
 
 <script>
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv";
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv"; 
+
     let yarnDatabase = [];
 
     async function fetchStash() {
         try {
             const response = await fetch(sheetUrl);
             const data = await response.text();
-            const rows = data.split('\n').slice(1); 
+            
+            // Split by lines and filter out empty rows
+            const rows = data.split(/\r?\n/).filter(row => row.trim() !== "").slice(1); 
 
             yarnDatabase = rows.map(row => {
-                const cols = row.split(',');
+                // This handles commas correctly
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
                 return {
-                    brand: cols[1],
-                    name: cols[2],
+                    brand: cols[1] ? cols[1].trim() : "",
+                    name: cols[2] ? cols[2].trim() : "",
                     colorFamily: cols[3] ? cols[3].trim() : "",
                     colorName: cols[4] ? cols[4].trim() : "",
                     weight: cols[5] ? cols[5].trim() : "",
+                    // We point to the new column positions (6 and 7)
                     yardage: parseFloat(cols[6]) || 0,
                     quantity: parseFloat(cols[7]) || 0,
                     image: cols[8] ? cols[8].trim() : ""
@@ -49,7 +55,8 @@
             });
             displayYarn();
         } catch (error) {
-            console.error("Error loading sheet:", error);
+            console.error("Fetch Error:", error);
+            document.getElementById('yarnGrid').innerHTML = "<p>Connection error.</p>";
         }
     }
 
@@ -59,36 +66,40 @@
         const grid = document.getElementById('yarnGrid');
         grid.innerHTML = '';
 
-        yarnDatabase.forEach(yarn => {
-            // Dual Filter Logic: Check both weight AND color
+        const filtered = yarnDatabase.filter(yarn => {
             const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
             const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
+            return yarn.brand && matchWeight && matchColor;
+        });
 
-            if (yarn.brand && matchWeight && matchColor) {
-                const totalYards = Math.round(yarn.yardage * yarn.quantity);
-                const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
-                
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
-                    <div class="card-content">
-                        <div class="brand-name">${yarn.brand}</div>
-                        <h3 class="yarn-title">${yarn.name || 'Fiber'}</h3>
-                        <div style="margin-bottom: 10px;">
-                            <span class="weight-badge">${yarn.weight}</span>
-                        </div>
-                        <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase;">
-                            ${yarn.colorFamily} / ${yarn.colorName}
-                        </p>
-                        <div class="stash-info">
-                            <span>${yarn.quantity} SKEINS</span>
-                            <span class="yardage-total">${totalYards} YDS</span>
-                        </div>
+        if (filtered.length === 0) {
+            grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #707070; text-transform: uppercase; font-size: 0.7rem;'>No matching yarn found.</p>";
+            return;
+        }
+
+        filtered.forEach(yarn => {
+            const totalYards = Math.round(yarn.yardage * yarn.quantity);
+            const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg'
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
+                <div class="card-content">
+                    <div class="brand-name">${yarn.brand}</div>
+                    <h3 class="yarn-title">${yarn.name || 'FIBER'}</h3>
+                    <div style="margin-bottom: 10px;">
+                        <span class="weight-badge">${yarn.weight}</span>
                     </div>
-                `;
-                grid.appendChild(card);
-            }
+                    <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        ${yarn.colorFamily} ${yarn.colorName ? '/ ' + yarn.colorName : ''}
+                    </p>
+                    <div class="stash-info">
+                        <span>${yarn.quantity} SKEINS</span>
+                        <span class="yardage-total">${totalYards} YDS</span>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
         });
     }
 
