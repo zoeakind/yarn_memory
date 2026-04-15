@@ -32,35 +32,36 @@
 
     async function fetchStash() {
         try {
+            console.log("Starting fetch...");
             const response = await fetch(sheetUrl);
             const data = await response.text();
             
-            // Clean and skip header
+            // Clean up lines and skip the header
             const rows = data.split(/\r?\n/).filter(row => row.trim() !== "").slice(1); 
 
+            // Create the database FIRST
             yarnDatabase = rows.map(row => {
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                
                 return {
-    brand: cols[1] ? cols[1].trim() : "",        
-    name: cols[2] ? cols[2].trim() : "",         
-    colorFamily: cols[3] ? cols[3].trim() : "",  // Column D
-    yarnName: cols[4] ? cols[4].trim() : "",     // Column E (formerly Color_Name)
-    weight: cols[5] ? cols[5].trim() : "",       
-    yardage: parseFloat(cols[6]) || 0,           
-    quantity: parseFloat(cols[7]) || 0,          
-    image: cols[8] ? cols[8].trim() : ""         
-};
+                    brand: cols[1] ? cols[1].trim() : "",        
+                    name: cols[2] ? cols[2].trim() : "",         
+                    colorFamily: cols[3] ? cols[3].trim() : "",  
+                    yarnName: cols[4] ? cols[4].trim() : "",     
+                    weight: cols[5] ? cols[5].trim() : "",       
+                    yardage: parseFloat(cols[6]) || 0,           
+                    quantity: parseFloat(cols[7]) || 0,          
+                    image: cols[8] ? cols[8].trim() : ""         
+                };
             });
 
-            // DEBUGGING: These go AFTER the map is finished
-            console.log("Full Database:", yarnDatabase);
-            // alert("Loaded " + yarnDatabase.length + " items"); 
-
+            console.log("Database successfully mapped. Items:", yarnDatabase.length);
+            
+            // Only now do we try to display it
             displayYarn();
+
         } catch (error) {
             console.error("Fetch Error:", error);
-            document.getElementById('yarnGrid').innerHTML = "<p>Connection error.</p>";
+            document.getElementById('yarnGrid').innerHTML = "<p style='text-align:center;'>CONNECTION ERROR: CHECK DATA SOURCE</p>";
         }
     }
 
@@ -68,17 +69,18 @@
         const weightChoice = document.getElementById('weightFilter').value;
         const colorChoice = document.getElementById('colorFilter').value;
         const grid = document.getElementById('yarnGrid');
+        
+        if (!grid) return; // Safety check
         grid.innerHTML = '';
 
         const filtered = yarnDatabase.filter(yarn => {
-            // This makes the filtering case-insensitive and space-proof
-            const matchWeight = (weightChoice === "All" || yarn.weight.trim() === weightChoice);
-            const matchColor = (colorChoice === "All" || yarn.colorFamily.trim() === colorChoice);
+            const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
+            const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
             return yarn.brand && matchWeight && matchColor;
         });
 
         if (filtered.length === 0) {
-            grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #707070; text-transform: uppercase; font-size: 0.7rem;'>No matching yarn found.</p>";
+            grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #707070; text-transform: uppercase; font-size: 0.7rem; letter-spacing:0.1em;'>No matching yarn found in stash.</p>";
             return;
         }
 
@@ -97,7 +99,7 @@
                         <span class="weight-badge">${yarn.weight}</span>
                     </div>
                     <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                     ${yarn.colorFamily} ${yarn.yarnName ? '/ ' + yarn.yarnName : ''}
+                        ${yarn.colorFamily} ${yarn.yarnName ? '/ ' + yarn.yarnName : ''}
                     </p>
                     <div class="stash-info">
                         <span>${yarn.quantity} SKEINS</span>
@@ -109,5 +111,6 @@
         });
     }
 
+    // Start the process
     fetchStash();
 </script>
