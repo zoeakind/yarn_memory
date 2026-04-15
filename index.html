@@ -157,83 +157,90 @@
         <p id="status-msg">Initiating Vault...</p>
     </div>
 
-    <script>
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv";
+ <script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv";
 
-        let yarnDatabase = [];
+    // CHANGE THESE to match your GitHub details
+    const githubUser = "zoeakind"; 
+    const githubRepo = "yarn_memory";
 
-        async function fetchStash() {
-            try {
-                const response = await fetch(sheetUrl);
-                const csvData = await response.text();
-                
-                // Process rows
-                const rows = csvData.split(/\r?\n/).filter(function(row) { 
-                    return row.trim() !== ""; 
-                }).slice(1);
+    let yarnDatabase = [];
 
-                yarnDatabase = rows.map(function(row) {
-                    const cols = row.split(/,(?=(?:(?:[^special"]*"){2})*[^"]*$)/);
-                    return {
-                        brand: cols[1] ? cols[1].trim() : "",
-                        name: cols[2] ? cols[2].trim() : "",
-                        colorFamily: cols[3] ? cols[3].trim() : "",
-                        yarnName: cols[4] ? cols[4].trim() : "",
-                        weight: cols[5] ? cols[5].trim() : "",
-                        yardage: parseFloat(cols[6]) || 0,
-                        quantity: parseFloat(cols[7]) || 0,
-                        image: cols[8] ? cols[8].trim() : ""
-                    };
-                });
+    async function fetchStash() {
+        try {
+            const response = await fetch(sheetUrl);
+            const csvData = await response.text();
+            const rows = csvData.split(/\r?\n/).filter(function(row) { return row.trim() !== ""; }).slice(1);
 
-                displayYarn();
-            } catch (err) {
-                document.getElementById('status-msg').innerHTML = "ERROR CONNECTING TO DATA";
-                console.error(err);
-            }
-        }
+            yarnDatabase = rows.map(function(row) {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                let rawImg = cols[8] ? cols[8].trim() : "";
+                let finalImg = "";
 
-        function displayYarn() {
-            const weightChoice = document.getElementById('weightFilter').value;
-            const colorChoice = document.getElementById('colorFilter').value;
-            const grid = document.getElementById('yarnGrid');
-            grid.innerHTML = '';
-
-            yarnDatabase.forEach(function(yarn) {
-                const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
-                const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
-
-                if (yarn.brand && matchWeight && matchColor) {
-                    const totalYds = Math.round(yarn.yardage * yarn.quantity);
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    
-                    // Safe string building
-                    let colorString = yarn.colorFamily;
-                    if (yarn.yarnName) colorString += " / " + yarn.yarnName;
-
-                    card.innerHTML = 
-                        '<img src=""' + (yarn.image || "ball-of-wool-fashion-svgrepo-com.svg") + '" onerror="this.src=\'ball-of-wool-fashion-svgrepo-com.svg\'">' +
-                        '<div class="brand-name">' + yarn.brand + '</div>' +
-                        '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
-                       '<span class="tag">' + yarn.weight + ' weight</span>' +
-                        '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
-                        '<div class="details-row">' +
-                            '<span class="quantity">' + yarn.quantity + ' SKEINS</span>' +
-                            '<span class="tag">' + totalYds + ' YDS TOTAL</span>' +
-                        '</div>';
-            
-                    grid.appendChild(card);
+                // SMART IMAGE LOGIC
+                if (rawImg === "") {
+                    finalImg = "ball-of-wool-fashion-svgrepo-com.svg";
+                } else if (rawImg.startsWith("http")) {
+                    finalImg = rawImg; // Use as-is if it's a full link
+                } else {
+                    // Build the GitHub path automatically if you just typed a filename
+                    finalImg = "https://raw.githubusercontent.com/" + githubUser + "/" + githubRepo + "/main/Images/" + rawImg;
                 }
+
+                return {
+                    brand: cols[1] ? cols[1].trim() : "",
+                    name: cols[2] ? cols[2].trim() : "",
+                    colorFamily: cols[3] ? cols[3].trim() : "",
+                    yarnName: cols[4] ? cols[4].trim() : "",
+                    weight: cols[5] ? cols[5].trim() : "",
+                    yardage: parseFloat(cols[6]) || 0,
+                    quantity: parseFloat(cols[7]) || 0,
+                    image: finalImg
+                };
             });
 
-            if (grid.innerHTML === '') {
-                grid.innerHTML = "<p id='status-msg'>No matches found in stash</p>";
-            }
+            displayYarn();
+        } catch (err) {
+            document.getElementById('yarnGrid').innerHTML = "ERROR CONNECTING TO DATA";
         }
+    }
 
-        // Start
-        fetchStash();
-    </script>
+    function displayYarn() {
+        const weightChoice = document.getElementById('weightFilter').value;
+        const colorChoice = document.getElementById('colorFilter').value;
+        const grid = document.getElementById('yarnGrid');
+        grid.innerHTML = '';
+
+        yarnDatabase.forEach(function(yarn) {
+            const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
+            const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
+
+            if (yarn.brand && matchWeight && matchColor) {
+                const totalYds = Math.round(yarn.yardage * yarn.quantity);
+                const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                let colorString = yarn.colorFamily;
+                if (yarn.yarnName) colorString += " / " + yarn.yarnName;
+
+                card.innerHTML = 
+                    '<img src="' + yarn.image + '" onerror="this.src=\'' + defaultImg + '\'">' +
+                    '<div class="brand-name">' + yarn.brand + '</div>' +
+                    '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
+                    '<span class="tag">' + yarn.weight + ' weight</span>' +
+                    '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
+                    '<div class="details-row">' +
+                        '<span class="quantity">' + yarn.quantity + ' SKEINS</span>' +
+                        '<span class="tag">' + totalYds + ' YDS TOTAL</span>' +
+                    '</div>';
+                
+                grid.appendChild(card);
+            }
+        });
+    }
+
+    fetchStash();
+</script>
 </body>
 </html>
