@@ -69,22 +69,22 @@
         .card { transition: opacity 0.4s ease; }
         .card:hover { opacity: 0.7; }
 
-     .card img { 
-            width: 100%; 
-            aspect-ratio: 3 / 4; 
-            object-fit: contain; /* This ensures the SVG isn't cropped */
-            padding: 40px;      /* Adds breathing room around the SVG */
-            box-sizing: border-box; 
-            margin-bottom: 24px;
-            background-color: #f9f9f9; /* Subtle contrast for the white background */
-            filter: grayscale(100%);
-            transition: all 0.5s ease;
-        }
+.card img { 
+    width: 100%; 
+    aspect-ratio: 3 / 4; 
+    object-fit: contain; /* This keeps the SVG from stretching */
+    background-color: #f9f9f9; 
+    padding: 40px; /* This creates the centered 'gallery' look */
+    box-sizing: border-box;
+    margin-bottom: 24px;
+    filter: grayscale(100%);
+    transition: all 0.5s ease;
+}
 
-        .card:hover img {
-            filter: grayscale(0%);
-            padding: 30px; /* Slight 'zoom' effect on the SVG when hovering */
-        }
+.card:hover img { 
+    filter: grayscale(0%); 
+    padding: 30px; /* Subtle zoom effect */
+}
 
         .brand-name { 
             font-size: 0.65rem; 
@@ -212,7 +212,7 @@
                     if (yarn.yarnName) colorString += " / " + yarn.yarnName;
 
                     card.innerHTML = 
-                        '<img src="' + (yarn.image || "ball-of-wool-fashion-svgrepo-com.svg") + '" onerror="this.src=\'ball-of-wool-fashion-svgrepo-com.svg\'">' +
+                        '<img src=""' + (yarn.image || "ball-of-wool-fashion-svgrepo-com.svg") + '" onerror="this.src=\'ball-of-wool-fashion-svgrepo-com.svg\'">' +
                         '<div class="brand-name">' + yarn.brand + '</div>' +
                         '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
                        '<span class="tag">' + yarn.weight + ' weight</span>' +
