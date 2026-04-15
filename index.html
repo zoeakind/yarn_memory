@@ -69,12 +69,21 @@
         .card { transition: opacity 0.4s ease; }
         .card:hover { opacity: 0.7; }
 
-        .card img { 
+     .card img { 
             width: 100%; 
             aspect-ratio: 3 / 4; 
-            object-fit: cover; 
+            object-fit: contain; /* This ensures the SVG isn't cropped */
+            padding: 40px;      /* Adds breathing room around the SVG */
+            box-sizing: border-box; 
             margin-bottom: 24px;
-            background-color: #f9f9f9;
+            background-color: #f9f9f9; /* Subtle contrast for the white background */
+            filter: grayscale(100%);
+            transition: all 0.5s ease;
+        }
+
+        .card:hover img {
+            filter: grayscale(0%);
+            padding: 30px; /* Slight 'zoom' effect on the SVG when hovering */
         }
 
         .brand-name { 
@@ -206,7 +215,7 @@
                         '<img src="' + (yarn.image || "/ball-of-wool-fashion-svgrepo-com.svg") + '" onerror="this.src=\'/ball-of-wool-fashion-svgrepo-com.svg\'">' +
                         '<div class="brand-name">' + yarn.brand + '</div>' +
                         '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
-                        '<span class="tag">' + yarn.weight + '</span>' +
+                       '<span class="tag">' + yarn.weight + ' weight</span>' +
                         '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
                         '<div class="details-row">' +
                             '<span class="quantity">' + yarn.quantity + ' SKEINS</span>' +
