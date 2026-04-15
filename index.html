@@ -20,6 +20,7 @@
             <option value="Pink">Pink</option>
             <option value="Purple">Purple</option>
             <option value="Varigated">Varigated</option>
+            <option value="Teal">Teal</option>
         </select>
     </div>
 </div>
@@ -42,15 +43,15 @@
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 
                 return {
-                    brand: cols[1] ? cols[1].trim() : "",
-                    name: cols[2] ? cols[2].trim() : "",
-                    colorFamily: cols[3] ? cols[3].trim() : "",
-                    colorName: cols[4] ? cols[4].trim() : "",
-                    weight: cols[5] ? cols[5].trim() : "",
+                    brand: cols[2] ? cols[2].trim() : "",
+                    name: cols[3] ? cols[3].trim() : "",
+                    colorFamily: cols[4] ? cols[4].trim() : "",
+                    colorName: cols[5] ? cols[5].trim() : "",
+                    weight: cols[6] ? cols[6].trim() : "",
                     // We point to the new column positions (6 and 7)
-                    yardage: parseFloat(cols[6]) || 0,
-                    quantity: parseFloat(cols[7]) || 0,
-                    image: cols[8] ? cols[8].trim() : ""
+                    yardage: parseFloat(cols[7]) || 0,
+                    quantity: parseFloat(cols[8]) || 0,
+                    image: cols[9] ? cols[9].trim() : ""
                 };
             });
             displayYarn();
