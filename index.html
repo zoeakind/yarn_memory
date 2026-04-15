@@ -244,33 +244,37 @@
         displayList.forEach(function(yarn) {
             const totalYds = Math.round(yarn.yardage * yarn.quantity);
             const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
+            
+            // NEW: Pluralization Logic
+            // If quantity is 1, use "SKEIN", otherwise use "SKEINS"
+            const skeinLabel = (yarn.quantity <= 1) ? "SKEIN" : "SKEINS";
+
             const card = document.createElement('div');
             card.className = 'card';
             
             let colorString = yarn.colorFamily;
             if (yarn.yarnName) colorString += " / " + yarn.yarnName;
 
-          card.innerHTML = 
-    '<img src="' + yarn.image + '" onerror="this.src=\'' + defaultImg + '\'">' +
-    '<div class="card-content">' +
-        '<div class="brand-name">' + yarn.brand + '</div>' +
-        '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
-        '<span class="tag">' + yarn.weight + ' weight</span>' +
-        '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
-        '<div class="details-row">' +
-            '<span class="quantity">' + yarn.quantity + ' SKEINS</span>' +
-            '<span class="tag">' + totalYds + ' YDS TOTAL</span>' +
-        '</div>' +
-        // NEW: Pattern Note Section
-        '<div style="margin-top: 15px; padding-top: 10px; border-top: 1px dotted #e0e0e0;">' +
-            '<label style="font-size: 0.55rem; letter-spacing: 0.1em; color: #999; display: block; margin-bottom: 4px;">PROJECT INTENT</label>' +
-            '<p style="font-size: 0.7rem; font-style: italic; margin: 0; color: #444;">' + yarn.patternNote + '</p>' +
-        '</div>' +
-    '</div>';
+            card.innerHTML = 
+                '<img src="' + yarn.image + '" onerror="this.src=\'' + defaultImg + '\'">' +
+                '<div class="card-content">' +
+                    '<div class="brand-name">' + yarn.brand + '</div>' +
+                    '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
+                    '<span class="tag">' + yarn.weight + ' weight</span>' +
+                    '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
+                    '<div class="details-row">' +
+                        // Use our new skeinLabel variable here
+                        '<span class="quantity">' + yarn.quantity + ' ' + skeinLabel + '</span>' +
+                        '<span class="tag">' + totalYds + ' YDS TOTAL</span>' +
+                    '</div>' +
+                    '<div style="margin-top: 15px; padding-top: 10px; border-top: 1px dotted #e0e0e0;">' +
+                        '<label style="font-size: 0.55rem; letter-spacing: 0.1em; color: #999; display: block; margin-bottom: 4px;">PROJECT INTENT</label>' +
+                        '<p style="font-size: 0.7rem; font-style: italic; margin: 0; color: #444;">' + yarn.patternNote + '</p>' +
+                    '</div>' +
+                '</div>';
             
             grid.appendChild(card);
         });
-    }
     fetchStash();
 </script>
 </body>
