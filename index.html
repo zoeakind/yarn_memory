@@ -125,14 +125,13 @@
 
     <h1>Yarn Memory</h1>
 
-    <div class="controls">
+   <div class="controls">
         <div class="filter-group">
             <label>Weight</label>
             <select id="weightFilter" onchange="displayYarn()">
                 <option value="All">All</option>
                 <option value="Fingering">Fingering</option>
                 <option value="Sport">Sport</option>
-                <option value="DK">DK</option>
                 <option value="Worsted">Worsted</option>
                 <option value="Bulky">Bulky</option>
             </select>
@@ -149,8 +148,12 @@
                 <option value="Purple">Purple</option>
                 <option value="Varigated">Varigated</option>
                 <option value="Teal">Teal</option>
-                <option value="Beige">Beige</option>
             </select>
+        </div>
+        <div class="filter-group">
+            <label>Min. Yardage Needed</label>
+            <input type="number" id="yardageFilter" placeholder="0" oninput="displayYarn()" 
+                   style="border:none; border-bottom: 1px solid #e0e0e0; font-size: 0.8rem; width: 80px; outline:none; text-transform: uppercase;">
         </div>
     </div>
 
@@ -209,29 +212,33 @@
     function displayYarn() {
         const weightChoice = document.getElementById('weightFilter').value;
         const colorChoice = document.getElementById('colorFilter').value;
+        const yardageNeeded = parseFloat(document.getElementById('yardageFilter').value) || 0;
+        
         const grid = document.getElementById('yarnGrid');
         grid.innerHTML = '';
 
-        // 1. Filter the database first
+        // 1. Filter the database
         let displayList = yarnDatabase.filter(function(yarn) {
+            const totalStashYards = yarn.yardage * yarn.quantity;
+            
             const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
             const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
-            return yarn.brand && matchWeight && matchColor;
+            const hasEnoughYardage = (totalStashYards >= yardageNeeded);
+
+            return yarn.brand && matchWeight && matchColor && hasEnoughYardage;
         });
 
-        // 2. NEW: Sort by total yardage (Quantity * Yardage)
+        // 2. Sort by yardage (High to Low)
         displayList.sort(function(a, b) {
-            const totalA = a.yardage * a.quantity;
-            const totalB = b.yardage * b.quantity;
-            return totalB - totalA; // This puts the largest number first
+            return (b.yardage * b.quantity) - (a.yardage * a.quantity);
         });
 
         if (displayList.length === 0) {
-            grid.innerHTML = "<p id='status-msg'>No matches found in stash</p>";
+            grid.innerHTML = "<p id='status-msg'>No yarn matches your project requirements.</p>";
             return;
         }
 
-        // 3. Draw the cards from our sorted list
+        // 3. Render cards
         displayList.forEach(function(yarn) {
             const totalYds = Math.round(yarn.yardage * yarn.quantity);
             const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
