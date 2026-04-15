@@ -119,6 +119,11 @@
         .quantity { font-size: 0.7rem; font-weight: 600; }
 
         #status-msg { text-align: center; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--secondary); }
+/* If a card is 'Assigned', we can give it a subtle hint */
+        .card.assigned {
+            border-left: 2px solid #f0f0f0;
+        }
+        
     </style>
 </head>
 <body>
@@ -135,6 +140,10 @@
                 <option value="Worsted">Worsted</option>
                 <option value="Bulky">Bulky</option>
             </select>
+            <div class="filter-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: auto;">
+    <input type="checkbox" id="unassignedFilter" onchange="displayYarn()" style="cursor: pointer;">
+    <label for="unassignedFilter" style="margin-bottom: 0; cursor: pointer;">Show Only Available</label>
+</div>
         </div>
         <div class="filter-group">
             <label>Color</label>
@@ -215,19 +224,27 @@
         const weightChoice = document.getElementById('weightFilter').value;
         const colorChoice = document.getElementById('colorFilter').value;
         const yardageNeeded = parseFloat(document.getElementById('yardageFilter').value) || 0;
+        const showUnassignedOnly = document.getElementById('unassignedFilter').checked; // NEW
         
         const grid = document.getElementById('yarnGrid');
-        if (!grid) return; // Safety check
+        if (!grid) return;
         grid.innerHTML = '';
 
         // 1. Filter the database
         let displayList = yarnDatabase.filter(function(yarn) {
             const totalStashYards = yarn.yardage * yarn.quantity;
+            
             const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
             const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
             const hasEnoughYardage = (totalStashYards >= yardageNeeded);
-            return yarn.brand && matchWeight && matchColor && hasEnoughYardage;
+            
+            // NEW: Only filter if the checkbox is checked
+            const matchUnassigned = !showUnassignedOnly || (yarn.patternNote === "Awaiting Inspiration");
+
+            return yarn.brand && matchWeight && matchColor && hasEnoughYardage && matchUnassigned;
         });
+
+        // ... rest of your sort and render code remains the same ...
 
         // 2. Sort by yardage (High to Low)
         displayList.sort(function(a, b) {
@@ -248,7 +265,7 @@
             var skeinLabel = (yarn.quantity <= 1) ? "SKEIN" : "SKEINS";
 
             const card = document.createElement('div');
-            card.className = 'card';
+    card.className = 'card' + (yarn.patternNote !== "Awaiting Inspiration" ? " assigned" : "");
             
             var colorString = yarn.colorFamily;
             if (yarn.yarnName) colorString += " / " + yarn.yarnName;
