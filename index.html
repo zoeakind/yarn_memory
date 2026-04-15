@@ -41,6 +41,9 @@
             yarnDatabase = rows.map(row => {
                 // This handles commas correctly
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+                console.log("Database Loaded:", yarnDatabase);
+alert("Loaded " + yarnDatabase.length + " items from Sheets");
                 
                 return {
                     brand: cols[2] ? cols[2].trim() : "",
