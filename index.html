@@ -1,116 +1,229 @@
-<div class="controls">
-    <div>
-        <label>Weight</label>
-        <select id="weightFilter" onchange="displayYarn()">
-            <option value="All">All</option>
-            <option value="Fingering">Fingering</option>
-            <option value="Sport">Sport</option>
-            <option value="Worsted">Worsted</option>
-            <option value="Bulky">Bulky</option>
-        </select>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yarn Memory</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --primary: #000000;
+            --secondary: #707070;
+            --border: #e0e0e0;
+        }
+
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            background: var(--bg); 
+            padding: 60px 40px; 
+            color: var(--primary); 
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1 { 
+            font-weight: 400; 
+            font-size: 1.5rem; 
+            letter-spacing: 0.1em; 
+            margin-bottom: 60px; 
+            text-transform: uppercase;
+        }
+
+        /* Controls Area */
+        .controls { 
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            margin-bottom: 60px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+
+        label { 
+            font-size: 0.6rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.2em; 
+            color: var(--secondary); 
+        }
+
+        select {
+            border: none;
+            background: transparent;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        /* Grid Layout */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 80px 40px; 
+        }
+
+        .card { transition: opacity 0.4s ease; }
+        .card:hover { opacity: 0.7; }
+
+        .card img { 
+            width: 100%; 
+            aspect-ratio: 3 / 4; 
+            object-fit: cover; 
+            margin-bottom: 24px;
+            background-color: #f9f9f9;
+        }
+
+        .brand-name { 
+            font-size: 0.65rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.2em; 
+            color: var(--secondary); 
+            margin-bottom: 8px;
+        }
+
+        .yarn-title { 
+            font-size: 1rem; 
+            font-weight: 400; 
+            margin: 0 0 12px 0; 
+        }
+
+        .details-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--secondary);
+        }
+
+        .quantity { font-size: 0.7rem; font-weight: 600; }
+
+        #status-msg { text-align: center; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--secondary); }
+    </style>
+</head>
+<body>
+
+    <h1>Yarn Memory</h1>
+
+    <div class="controls">
+        <div class="filter-group">
+            <label>Weight</label>
+            <select id="weightFilter" onchange="displayYarn()">
+                <option value="All">All</option>
+                <option value="Fingering">Fingering</option>
+                <option value="Sport">Sport</option>
+                <option value="Worsted">Worsted</option>
+                <option value="Bulky">Bulky</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Color</label>
+            <select id="colorFilter" onchange="displayYarn()">
+                <option value="All">All</option>
+                <option value="Blue">Blue</option>
+                <option value="Green">Green</option>
+                <option value="Red">Red</option>
+                <option value="Cream">Cream</option>
+                <option value="Pink">Pink</option>
+                <option value="Purple">Purple</option>
+                <option value="Varigated">Varigated</option>
+                <option value="Teal">Teal</option>
+            </select>
+        </div>
     </div>
-    <div>
-        <label>Color</label>
-        <select id="colorFilter" onchange="displayYarn()">
-            <option value="All">All</option>
-            <option value="Blue">Blue</option>
-            <option value="Green">Green</option>
-            <option value="Red">Red</option>
-            <option value="Cream">Cream</option>
-            <option value="Pink">Pink</option>
-            <option value="Purple">Purple</option>
-            <option value="Varigated">Varigated</option>
-            <option value="Teal">Teal</option>
-        </select>
+
+    <div id="yarnGrid" class="grid">
+        <p id="status-msg">Initiating Vault...</p>
     </div>
-</div>
 
-<script>
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv"; 
+    <script>
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4YqSKZ84AjEXmmMxwHsDauyXM5kdjAR27-V9_v8pxgQgI5OnoTRy-eybuXCLfiqN5gjlwcEtPxRRs/pub?output=csv";
 
-    let yarnDatabase = [];
+        let yarnDatabase = [];
 
-    async function fetchStash() {
-        try {
-            console.log("Starting fetch...");
-            const response = await fetch(sheetUrl);
-            const data = await response.text();
+        async function fetchStash() {
+            try {
+                const response = await fetch(sheetUrl);
+                const csvData = await response.text();
+                
+                // Process rows
+                const rows = csvData.split(/\r?\n/).filter(function(row) { 
+                    return row.trim() !== ""; 
+                }).slice(1);
+
+                yarnDatabase = rows.map(function(row) {
+                    const cols = row.split(/,(?=(?:(?:[^special"]*"){2})*[^"]*$)/);
+                    return {
+                        brand: cols[1] ? cols[1].trim() : "",
+                        name: cols[2] ? cols[2].trim() : "",
+                        colorFamily: cols[3] ? cols[3].trim() : "",
+                        yarnName: cols[4] ? cols[4].trim() : "",
+                        weight: cols[5] ? cols[5].trim() : "",
+                        yardage: parseFloat(cols[6]) || 0,
+                        quantity: parseFloat(cols[7]) || 0,
+                        image: cols[8] ? cols[8].trim() : ""
+                    };
+                });
+
+                displayYarn();
+            } catch (err) {
+                document.getElementById('status-msg').innerHTML = "ERROR CONNECTING TO DATA";
+                console.error(err);
+            }
+        }
+
+        function displayYarn() {
+            const weightChoice = document.getElementById('weightFilter').value;
+            const colorChoice = document.getElementById('colorFilter').value;
+            const grid = document.getElementById('yarnGrid');
+            grid.innerHTML = '';
+
+            yarnDatabase.forEach(function(yarn) {
+                const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
+                const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
+
+                if (yarn.brand && matchWeight && matchColor) {
+                    const totalYds = Math.round(yarn.yardage * yarn.quantity);
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    // Safe string building
+                    let colorString = yarn.colorFamily;
+                    if (yarn.yarnName) colorString += " / " + yarn.yarnName;
+
+                    card.innerHTML = 
+                        '<img src="' + (yarn.image || "ball-of-wool-fashion-svgrepo-com.svg") + '" onerror="this.src=\'ball-of-wool-fashion-svgrepo-com.svg\'">' +
+                        '<div class="brand-name">' + yarn.brand + '</div>' +
+                        '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
+                        '<span class="tag">' + yarn.weight + '</span>' +
+                        '<p class="tag" style="margin-top:8px;">' + colorString + '</p>' +
+                        '<div class="details-row">' +
+                            '<span class="quantity">' + yarn.quantity + ' SKEINS</span>' +
+                            '<span class="tag">' + totalYds + ' YDS TOTAL</span>' +
+                        '</div>';
             
-            // Clean up lines and skip the header
-            const rows = data.split(/\r?\n/).filter(row => row.trim() !== "").slice(1); 
-
-            // Create the database FIRST
-            yarnDatabase = rows.map(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                return {
-                    brand: cols[1] ? cols[1].trim() : "",        
-                    name: cols[2] ? cols[2].trim() : "",         
-                    colorFamily: cols[3] ? cols[3].trim() : "",  
-                    yarnName: cols[4] ? cols[4].trim() : "",     
-                    weight: cols[5] ? cols[5].trim() : "",       
-                    yardage: parseFloat(cols[6]) || 0,           
-                    quantity: parseFloat(cols[7]) || 0,          
-                    image: cols[8] ? cols[8].trim() : ""         
-                };
+                    grid.appendChild(card);
+                }
             });
 
-            console.log("Database successfully mapped. Items:", yarnDatabase.length);
-            
-            // Only now do we try to display it
-            displayYarn();
-
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            document.getElementById('yarnGrid').innerHTML = "<p style='text-align:center;'>CONNECTION ERROR: CHECK DATA SOURCE</p>";
-        }
-    }
-
-    function displayYarn() {
-        const weightChoice = document.getElementById('weightFilter').value;
-        const colorChoice = document.getElementById('colorFilter').value;
-        const grid = document.getElementById('yarnGrid');
-        
-        if (!grid) return; // Safety check
-        grid.innerHTML = '';
-
-        const filtered = yarnDatabase.filter(yarn => {
-            const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
-            const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
-            return yarn.brand && matchWeight && matchColor;
-        });
-
-        if (filtered.length === 0) {
-            grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #707070; text-transform: uppercase; font-size: 0.7rem; letter-spacing:0.1em;'>No matching yarn found in stash.</p>";
-            return;
+            if (grid.innerHTML === '') {
+                grid.innerHTML = "<p id='status-msg'>No matches found in stash</p>";
+            }
         }
 
-        filtered.forEach(yarn => {
-            const totalYards = Math.round(yarn.yardage * yarn.quantity);
-            const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg'; 
-            
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <img src="${yarn.image || defaultImg}" onerror="this.src='${defaultImg}'">
-                <div class="card-content">
-                    <div class="brand-name">${yarn.brand}</div>
-                    <h3 class="yarn-title">${yarn.name || 'FIBER'}</h3>
-                    <div style="margin-bottom: 10px;">
-                        <span class="weight-badge">${yarn.weight}</span>
-                    </div>
-                    <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                        ${yarn.colorFamily} ${yarn.yarnName ? '/ ' + yarn.yarnName : ''}
-                    </p>
-                    <div class="stash-info">
-                        <span>${yarn.quantity} SKEINS</span>
-                        <span class="yardage-total">${totalYards} YDS</span>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    // Start the process
-    fetchStash();
-</script>
+        // Start
+        fetchStash();
+    </script>
+</body>
+</html>
