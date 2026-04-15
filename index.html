@@ -245,7 +245,7 @@
             const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg';
             
             // Pluralization check
-            var skeinLabel = (yarn.quantity === 1) ? "SKEIN" : "SKEINS";
+            var skeinLabel = (yarn.quantity <= 1) ? "SKEIN" : "SKEINS";
 
             const card = document.createElement('div');
             card.className = 'card';
