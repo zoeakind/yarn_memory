@@ -50,7 +50,7 @@ alert("Loaded " + yarnDatabase.length + " items from Sheets");
     brand: cols[1] ? cols[1].trim() : "",        // Column B
     name: cols[2] ? cols[2].trim() : "",         // Column C
     colorFamily: cols[3] ? cols[3].trim() : "",  // Column D
-    colorName: cols[4] ? cols[4].trim() : "",    // Column E
+    yarnName: cols[4] ? cols[4].trim() : "",    // Column E
     weight: cols[5] ? cols[5].trim() : "",       // Column F
     yardage: parseFloat(cols[6]) || 0,           // Column G
     quantity: parseFloat(cols[7]) || 0,          // Column H
@@ -95,7 +95,7 @@ alert("Loaded " + yarnDatabase.length + " items from Sheets");
                         <span class="weight-badge">${yarn.weight}</span>
                     </div>
                     <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                        ${yarn.colorFamily} ${yarn.colorName ? '/ ' + yarn.colorName : ''}
+                        ${yarn.colorFamily} ${yarn.colorName ? '/ ' + yarn.yarnName : ''}
                     </p>
                     <div class="stash-info">
                         <span>${yarn.quantity} SKEINS</span>
