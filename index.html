@@ -176,19 +176,19 @@
             const csvData = await response.text();
             const rows = csvData.split(/\r?\n/).filter(function(row) { return row.trim() !== ""; }).slice(1);
 
-            yarnDatabase = rows.map(function(row) {
+           yarnDatabase = rows.map(function(row) {
+                // This regex handles commas inside quotes (like "Merino, Silk")
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
                 let rawImg = cols[8] ? cols[8].trim() : "";
                 let finalImg = "";
 
-                // SMART IMAGE LOGIC
                 if (rawImg === "") {
                     finalImg = "ball-of-wool-fashion-svgrepo-com.svg";
                 } else if (rawImg.startsWith("http")) {
-                    finalImg = rawImg; // Use as-is if it's a full link
+                    finalImg = rawImg;
                 } else {
-                    // Build the GitHub path automatically if you just typed a filename
-                    finalImg = "https://raw.githubusercontent.com/" + githubUser + "/" + githubRepo + "/main/Images/" + rawImg;
+                    finalImg = "https://raw.githubusercontent.com/" + githubUser + "/" + githubRepo + "/main/images/" + rawImg;
                 }
 
                 return {
@@ -199,8 +199,9 @@
                     weight: cols[5] ? cols[5].trim() : "",
                     yardage: parseFloat(cols[6]) || 0,
                     quantity: parseFloat(cols[7]) || 0,
-                    image: finalImg
-                    patternNote: cols[9] ? cols[9].trim() : "Awaiting Inspiration" // NEW: Column J
+                    image: finalImg,
+                    // SAFE CHECK: If column 9 doesn't exist yet, use the default phrase
+                    patternNote: (cols[9] && cols[9].trim() !== "") ? cols[9].trim() : "Awaiting Inspiration"
                 };
             });
 
