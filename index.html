@@ -35,28 +35,28 @@
             const response = await fetch(sheetUrl);
             const data = await response.text();
             
-            // Split by lines and filter out empty rows
+            // Clean and skip header
             const rows = data.split(/\r?\n/).filter(row => row.trim() !== "").slice(1); 
 
             yarnDatabase = rows.map(row => {
-                // This handles commas correctly
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
-                console.log("Database Loaded:", yarnDatabase);
-alert("Loaded " + yarnDatabase.length + " items from Sheets");
                 
                 return {
-    // ID is Column A
-    brand: cols[1] ? cols[1].trim() : "",        // Column B
-    name: cols[2] ? cols[2].trim() : "",         // Column C
+    brand: cols[1] ? cols[1].trim() : "",        
+    name: cols[2] ? cols[2].trim() : "",         
     colorFamily: cols[3] ? cols[3].trim() : "",  // Column D
-    yarnName: cols[4] ? cols[4].trim() : "",    // Column E
-    weight: cols[5] ? cols[5].trim() : "",       // Column F
-    yardage: parseFloat(cols[6]) || 0,           // Column G
-    quantity: parseFloat(cols[7]) || 0,          // Column H
-    image: cols[8] ? cols[8].trim() : ""         // Column I
+    yarnName: cols[4] ? cols[4].trim() : "",     // Column E (formerly Color_Name)
+    weight: cols[5] ? cols[5].trim() : "",       
+    yardage: parseFloat(cols[6]) || 0,           
+    quantity: parseFloat(cols[7]) || 0,          
+    image: cols[8] ? cols[8].trim() : ""         
 };
             });
+
+            // DEBUGGING: These go AFTER the map is finished
+            console.log("Full Database:", yarnDatabase);
+            // alert("Loaded " + yarnDatabase.length + " items"); 
+
             displayYarn();
         } catch (error) {
             console.error("Fetch Error:", error);
@@ -71,8 +71,9 @@ alert("Loaded " + yarnDatabase.length + " items from Sheets");
         grid.innerHTML = '';
 
         const filtered = yarnDatabase.filter(yarn => {
-            const matchWeight = (weightChoice === "All" || yarn.weight === weightChoice);
-            const matchColor = (colorChoice === "All" || yarn.colorFamily === colorChoice);
+            // This makes the filtering case-insensitive and space-proof
+            const matchWeight = (weightChoice === "All" || yarn.weight.trim() === weightChoice);
+            const matchColor = (colorChoice === "All" || yarn.colorFamily.trim() === colorChoice);
             return yarn.brand && matchWeight && matchColor;
         });
 
@@ -83,7 +84,8 @@ alert("Loaded " + yarnDatabase.length + " items from Sheets");
 
         filtered.forEach(yarn => {
             const totalYards = Math.round(yarn.yardage * yarn.quantity);
-            const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg'
+            const defaultImg = 'ball-of-wool-fashion-svgrepo-com.svg'; 
+            
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -95,7 +97,7 @@ alert("Loaded " + yarnDatabase.length + " items from Sheets");
                         <span class="weight-badge">${yarn.weight}</span>
                     </div>
                     <p style="color: #707070; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                        ${yarn.colorFamily} ${yarn.yarnName ? '/ ' + yarn.yarnName : ''}
+                     ${yarn.colorFamily} ${yarn.yarnName ? '/ ' + yarn.yarnName : ''}
                     </p>
                     <div class="stash-info">
                         <span>${yarn.quantity} SKEINS</span>
