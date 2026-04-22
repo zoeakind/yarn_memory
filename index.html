@@ -69,17 +69,7 @@
         .card { transition: opacity 0.4s ease; }
         .card:hover { opacity: 0.7; }
 
-.card img { 
-    width: 100%; 
-    aspect-ratio: 3 / 4; 
-    object-fit: contain; /* This keeps the SVG from stretching */
-    background-color: #f9f9f9; 
-    padding: 40px; /* This creates the centered 'gallery' look */
-    box-sizing: border-box;
-    margin-bottom: 24px;
-    filter: grayscale(100%);
-    transition: all 0.5s ease;
-}
+
 
 .card:hover img { 
     filter: grayscale(0%); 
@@ -271,8 +261,7 @@
             if (yarn.yarnName) colorString += " / " + yarn.yarnName;
 
             card.innerHTML = 
-                '<img src="' + yarn.image + '" onerror="this.src=\'' + defaultImg + '\'">' +
-                '<div class="card-content">' +
+                            '<div class="card-content">' +
                     '<div class="brand-name">' + yarn.brand + '</div>' +
                     '<h3 class="yarn-title">' + (yarn.name || "Fiber") + '</h3>' +
                     '<span class="tag">' + yarn.weight + ' weight</span>' +
